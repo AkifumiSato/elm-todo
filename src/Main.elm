@@ -1,8 +1,7 @@
 import Browser
-import Html
-import Html.Styled exposing (..)
-import Html.Attributes exposing (..)
+import Html.Styled as Styled
 import Html.Styled.Attributes exposing (css, placeholder)
+import Html.Styled.Events exposing (onSubmit)
 import Css exposing (..)
 import Css.Transitions exposing (transition)
 import Task
@@ -17,7 +16,7 @@ import String exposing (String)
 main =
   Browser.element
     { init = init
-    , view = view >> toUnstyled
+    , view = view >> Styled.toUnstyled
     , update = update
     , subscriptions = subscriptions
     }
@@ -27,15 +26,22 @@ main =
 -- MODEL
 
 
+type alias Todo =
+  { title : String
+  , date : String
+  }
+
+
 type alias Model =
   { zone : Time.Zone
   , time : Time.Posix
+  , todos : List Todo
   }
 
 
 init : () -> (Model, Cmd Msg)
 init _ =
-  ( Model Time.utc (Time.millisToPosix 0)
+  ( Model Time.utc (Time.millisToPosix 0) []
   , Task.perform AdjustTimeZone Time.here
   )
 
@@ -47,6 +53,7 @@ init _ =
 type Msg
   = Tick Time.Posix
   | AdjustTimeZone Time.Zone
+  | Add
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -59,6 +66,11 @@ update msg model =
 
     AdjustTimeZone newZone ->
       ( { model | zone = newZone }
+      , Cmd.none
+      )
+
+    Add ->
+      ( { model | todos = ( Todo "Todoタイトル" "Todo詳細" ) :: model.todos }
       , Cmd.none
       )
 
@@ -76,7 +88,7 @@ subscriptions model =
 -- VIEW
 
 
-view : Model -> Html Msg
+view : Model -> Styled.Html Msg
 view model =
   let
     zeroPadding = String.right 2
@@ -84,50 +96,68 @@ view model =
     minute = zeroPadding <| "0" ++ String.fromInt (Time.toMinute model.zone model.time)
     second = zeroPadding <| "0" ++ String.fromInt (Time.toSecond model.zone model.time)
   in
-  div
+  Styled.div
     [ css
       [ backgroundColor (hex "#7F7FD5")
       , backgroundImage (linearGradient2 toTopLeft (stop <| hex "#4776E6") (stop <| hex "#8E54E9") [])
-      , minHeight (vh 100)
-      , padding (px 50)
       ]
     ]
-    [ h1
+    [ Styled.div
       [ css
-        [ color (hex "fff")
-        , fontSize (px 30)
+        [ boxSizing borderBox
+        , minHeight (vh 100)
+        , margin2 (px 0) auto
+        , paddingTop (px 50)
+        , width (vw 70)
         ]
       ]
-      [ text "NxTodo" ]
-    , p
-      [ css
-        [ color (hex "fff")
-        , fontSize (px 100)
-        , lineHeight (px 100)
-        , marginTop (px 30)
-        ]
-      ]
-      [ text (hour ++ ":" ++ minute ++ ":" ++ second) ]
-    , div
-      [ css
-        [ marginTop (px 30)
-        , color (hex "ccc")
-        , fontSize (px 16)
-        , lineHeight (px 16)
-        ]
-      ]
-      [ p [] [ text "Write your new Todo." ]
-      , input
+      [ Styled.h1
         [ css
-          [ backgroundColor transparent
-          , borderBottom3 (px 1) solid (hex "fff")
-          , color (hex "fff")
-          , fontSize (px 20)
-          , lineHeight (px 20)
-          , padding (px 10)
-          , Css.width (px 500)
+          [ color (hex "fff")
+          , fontSize (px 30)
           ]
         ]
-        []
+        [ Styled.text "NxTodo" ]
+      , Styled.p
+        [ css
+          [ color (hex "fff")
+          , fontSize (px 100)
+          , lineHeight (px 100)
+          , marginTop (px 30)
+          ]
+        ]
+        [ Styled.text (hour ++ ":" ++ minute ++ ":" ++ second) ]
+      , Styled.form
+        [ onSubmit Add
+        , css
+          [ marginTop (px 30)
+          , color (hex "ccc")
+          , fontSize (px 16)
+          , lineHeight (px 16)
+          ]
+        ]
+        [ Styled.p [] [ Styled.text "Write your new Todo." ]
+        , Styled.input
+          [ css
+            [ backgroundColor transparent
+            , borderBottom3 (px 1) solid (hex "fff")
+            , color (hex "fff")
+            , fontSize (px 20)
+            , lineHeight (px 20)
+            , padding (px 10)
+            , width (px 500)
+            ]
+          ]
+          []
+        ]
+      , viewList model.todos
       ]
+    ]
+
+
+viewList : List Todo -> Styled.Html Msg
+viewList todos =
+  Styled.div
+    []
+    [ Styled.li [] ( List.map (\todo -> Styled.li [] [ Styled.text todo.title ]) todos )
     ]
