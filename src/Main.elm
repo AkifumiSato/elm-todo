@@ -1,6 +1,9 @@
 import Browser
-import Html exposing (..)
+import Html
+import Html.Styled exposing (..)
 import Html.Attributes exposing (..)
+import Html.Styled.Attributes exposing (css)
+import Css exposing (..)
 import Task
 import Time
 
@@ -12,7 +15,7 @@ import Time
 main =
   Browser.element
     { init = init
-    , view = view
+    , view = view >> toUnstyled
     , update = update
     , subscriptions = subscriptions
     }
@@ -79,12 +82,27 @@ view model =
     second = String.fromInt (Time.toSecond model.zone model.time)
   in
   div
-    [ style "background" "#7F7FD5"
-      ,style "background" "-webkit-linear-gradient(to right, #91EAE4, #86A8E7, #7F7FD5)"
-      ,style "background" "linear-gradient(to right, #91EAE4, #86A8E7, #7F7FD5)"
+    [ css
+      [ backgroundColor (hex "#7F7FD5")
+      , backgroundImage (linearGradient2 toTopLeft (stop <| hex "#4776E6") (stop <| hex "#8E54E9") [])
+      , minHeight <| vh 100
+      , padding <| px 50
+      ]
     ]
-    [
-      h1 [] [ text "Nxt" ]
-      ,p [] [ text (hour ++ ":" ++ minute ++ ":" ++ second) ]
-      ,p [] [ text "hello, world" ]
+    [ h1
+      [ css
+        [ color <| hex "fff"
+        , fontSize <| px 30
+        ]
+      ]
+      [ text "NxTodo" ]
+    ,p
+      [ css
+        [ color <| hex "fff"
+        , fontSize <| px 100
+        , lineHeight <| px 100
+        , marginTop <| px 30
+        ]
+      ]
+      [ text (hour ++ ":" ++ minute ++ ":" ++ second) ]
     ]
