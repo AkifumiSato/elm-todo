@@ -2,10 +2,12 @@ import Browser
 import Html
 import Html.Styled exposing (..)
 import Html.Attributes exposing (..)
-import Html.Styled.Attributes exposing (css)
+import Html.Styled.Attributes exposing (css, placeholder)
 import Css exposing (..)
+import Css.Transitions exposing (transition)
 import Task
 import Time
+import String exposing (String)
 
 
 
@@ -77,32 +79,55 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
   let
-    hour   = String.fromInt (Time.toHour   model.zone model.time)
-    minute = String.fromInt (Time.toMinute model.zone model.time)
-    second = String.fromInt (Time.toSecond model.zone model.time)
+    zeroPadding = String.right 2
+    hour   = zeroPadding <| "0" ++ String.fromInt (Time.toHour   model.zone model.time)
+    minute = zeroPadding <| "0" ++ String.fromInt (Time.toMinute model.zone model.time)
+    second = zeroPadding <| "0" ++ String.fromInt (Time.toSecond model.zone model.time)
   in
   div
     [ css
       [ backgroundColor (hex "#7F7FD5")
       , backgroundImage (linearGradient2 toTopLeft (stop <| hex "#4776E6") (stop <| hex "#8E54E9") [])
-      , minHeight <| vh 100
-      , padding <| px 50
+      , minHeight (vh 100)
+      , padding (px 50)
       ]
     ]
     [ h1
       [ css
-        [ color <| hex "fff"
-        , fontSize <| px 30
+        [ color (hex "fff")
+        , fontSize (px 30)
         ]
       ]
       [ text "NxTodo" ]
-    ,p
+    , p
       [ css
-        [ color <| hex "fff"
-        , fontSize <| px 100
-        , lineHeight <| px 100
-        , marginTop <| px 30
+        [ color (hex "fff")
+        , fontSize (px 100)
+        , lineHeight (px 100)
+        , marginTop (px 30)
         ]
       ]
       [ text (hour ++ ":" ++ minute ++ ":" ++ second) ]
+    , div
+      [ css
+        [ marginTop (px 30)
+        , color (hex "ccc")
+        , fontSize (px 16)
+        , lineHeight (px 16)
+        ]
+      ]
+      [ p [] [ text "Write your new Todo." ]
+      , input
+        [ css
+          [ backgroundColor transparent
+          , borderBottom3 (px 1) solid (hex "fff")
+          , color (hex "fff")
+          , fontSize (px 20)
+          , lineHeight (px 20)
+          , padding (px 10)
+          , Css.width (px 500)
+          ]
+        ]
+        []
+      ]
     ]
