@@ -8,6 +8,8 @@ import Css.Animations exposing (custom, keyframes, property)
 import Task
 import Time
 import String exposing (String)
+import Ports
+import Json.Encode as E
 
 
 
@@ -73,13 +75,28 @@ update msg model =
       )
 
     Add input ->
-      ( { model | todos = ( Todo input model.time ) :: model.todos }
-      , Cmd.none
+      let
+        newModel = { model | todos = ( Todo input model.time ) :: model.todos }
+      in
+      ( newModel
+      , Ports.save (todosEncode newModel.todos)
       )
 
     Input input ->
       ( { model | userInput = input }
       , Cmd.none
+      )
+
+
+todosEncode : List Todo -> E.Value
+todosEncode todos =
+    E.list
+      E.object
+      ( todos
+        |> List.map (\todo ->
+          [ ( "title", E.string todo.title )
+          , ( "date", E.int (Time.posixToMillis todo.date) )
+          ] )
       )
 
 
@@ -120,9 +137,9 @@ view model =
         , width (vw 70)
         ]
       ]
-      ([ viewHeader (hour ++ ":" ++ minute ++ ":" ++ second)
+      ( [ viewHeader (hour ++ ":" ++ minute ++ ":" ++ second)
       , viewForm model.userInput
-      ] ++ ( viewList model.todos ))
+      ] ++ ( viewList model.todos ) )
     ]
 
 

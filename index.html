@@ -10,6 +10,9 @@
   var app = Elm.Main.init({
     node: document.getElementById('elm'),
   })
+  app.ports.save.subscribe(function(data) {
+    localStorage.setItem('NxTodo', JSON.stringify(data))
+  })
 </script>
 </body>
 </html>
