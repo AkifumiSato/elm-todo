@@ -209,33 +209,34 @@ viewList todos =
           ]
           [ Styled.ul
             []
-            <| ( todos |> List.map (\todo -> Styled.li
-              [ css
-                [ boxSizing borderBox
-                , backgroundColor (hex "fff")
-                , borderRadius (px 3)
-                , boxShadow4 (px 0) (px 4) (px 24) (rgba 0 0 0 0.15)
-                , color (hex "aaa")
-                , fontSize (px 20)
-                , padding (px 20)
-                , width (px 500)
-                , marginTop (px 20)
-                , transform (translateY (px 0))
-                , transition
-                  [ Css.Transitions.boxShadow 500
-                  , Css.Transitions.transform 500
-                  ]
-                , firstChild
-                  [ marginTop (px 0)
-                  ]
-                , hover
-                  [ boxShadow4 (px 0) (px 4) (px 48) (rgba 0 0 0 0.3)
-                  , transform (translateY (px -3))
+            <| ( todos
+              |> List.map (\todo -> Styled.li
+                [ css
+                  [ boxSizing borderBox
+                  , backgroundColor (hex "fff")
+                  , borderRadius (px 3)
+                  , boxShadow4 (px 0) (px 4) (px 24) (rgba 0 0 0 0.15)
+                  , color (hex "aaa")
+                  , fontSize (px 20)
+                  , padding (px 20)
+                  , width (px 500)
+                  , marginTop (px 20)
+                  , transform (translateY (px 0))
+                  , transition
+                    [ Css.Transitions.boxShadow 500
+                    , Css.Transitions.transform 500
+                    ]
+                  , firstChild
+                    [ marginTop (px 0)
+                    ]
+                  , hover
+                    [ boxShadow4 (px 0) (px 4) (px 48) (rgba 0 0 0 0.3)
+                    , transform (translateY (px -3))
+                    ]
                   ]
                 ]
-              ]
-              [ Styled.text todo.title ]
-            ))
+                [ Styled.text todo.title ]
+              ))
           ]
         ]
 
