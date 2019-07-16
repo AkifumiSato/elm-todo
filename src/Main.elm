@@ -121,31 +121,7 @@ view model =
         ]
       ]
       ([ viewHeader (hour ++ ":" ++ minute ++ ":" ++ second)
-      , Styled.form
-        [ onSubmit (Add model.userInput)
-        , css
-          [ marginTop (px 30)
-          , color (hex "ccc")
-          , fontSize (px 16)
-          , lineHeight (px 16)
-          ]
-        ]
-        [ Styled.p [] [ Styled.text "Write your new Todo." ]
-        , Styled.input
-          [ onInput Input
-          , value model.userInput
-          , css
-            [ backgroundColor transparent
-            , borderBottom3 (px 1) solid (hex "fff")
-            , color (hex "fff")
-            , fontSize (px 20)
-            , lineHeight (px 20)
-            , padding (px 10)
-            , width (px 500)
-            ]
-          ]
-          []
-        ]
+      , viewForm model.userInput
       ] ++ ( viewList model.todos ))
     ]
 
@@ -170,6 +146,35 @@ viewHeader time =
         ]
       ]
       [ Styled.text (time) ]
+    ]
+
+
+viewForm : String -> Styled.Html Msg
+viewForm input =
+  Styled.form
+    [ onSubmit (Add input)
+    , css
+      [ marginTop (px 30)
+      , color (hex "ccc")
+      , fontSize (px 16)
+      , lineHeight (px 16)
+      ]
+    ]
+    [ Styled.p [] [ Styled.text "Write your new Todo." ]
+    , Styled.input
+      [ onInput Input
+      , value input
+      , css
+        [ backgroundColor transparent
+        , borderBottom3 (px 1) solid (hex "fff")
+        , color (hex "fff")
+        , fontSize (px 20)
+        , lineHeight (px 20)
+        , padding (px 10)
+        , width (px 500)
+        ]
+      ]
+      []
     ]
 
 
