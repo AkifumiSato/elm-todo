@@ -108,6 +108,7 @@ view model =
     [ css
       [ backgroundColor (hex "#7F7FD5")
       , backgroundImage (linearGradient2 toTopLeft (stop <| hex "#4776E6") (stop <| hex "#8E54E9") [])
+      , overflow hidden
       ]
     ]
     [ Styled.div
@@ -119,22 +120,7 @@ view model =
         , width (vw 70)
         ]
       ]
-      [ Styled.h1
-        [ css
-          [ color (hex "fff")
-          , fontSize (px 30)
-          ]
-        ]
-        [ Styled.text "NxTodo" ]
-      , Styled.p
-        [ css
-          [ color (hex "fff")
-          , fontSize (px 100)
-          , lineHeight (px 100)
-          , marginTop (px 30)
-          ]
-        ]
-        [ Styled.text (hour ++ ":" ++ minute ++ ":" ++ second) ]
+      ([ viewHeader (hour ++ ":" ++ minute ++ ":" ++ second)
       , Styled.form
         [ onSubmit (Add model.userInput)
         , css
@@ -160,45 +146,74 @@ view model =
           ]
           []
         ]
-      , viewList model.todos
-      ]
+      ] ++ ( viewList model.todos ))
     ]
 
 
-viewList : List Todo -> Styled.Html Msg
+viewHeader : String -> Styled.Html Msg
+viewHeader time =
+  Styled.header
+    []
+    [ Styled.h1
+      [ css
+        [ color (hex "fff")
+        , fontSize (px 30)
+        ]
+      ]
+      [ Styled.text "NxTodo" ]
+    , Styled.p
+      [ css
+        [ color (hex "fff")
+        , fontSize (px 100)
+        , lineHeight (px 100)
+        , marginTop (px 30)
+        ]
+      ]
+      [ Styled.text (time) ]
+    ]
+
+
+viewList : List Todo -> List (Styled.Html Msg)
 viewList todos =
-  Styled.div
-    [ css
-      [ marginTop (px 30)
-      ]
-    ]
-    [ Styled.ul
-      []
-      ( List.map (\todo -> Styled.li
-        [ css
-          [ boxSizing borderBox
-          , backgroundColor (hex "fff")
-          , borderRadius (px 3)
-          , boxShadow4 (px 0) (px 4) (px 24) (rgba 0 0 0 0.15)
-          , color (hex "aaa")
-          , fontSize (px 20)
-          , padding (px 20)
-          , width (px 500)
-          , marginTop (px 20)
-          , transform (translateY (px 0))
-          , transition
-            [ Css.Transitions.boxShadow 500
-            , Css.Transitions.transform 500
-            ]
-          , firstChild
-            [ marginTop (px 0)
-            ]
-          , hover
-            [ boxShadow4 (px 0) (px 4) (px 48) (rgba 0 0 0 0.3)
-            , transform (translateY (px -3))
+    case todos of
+      [] ->
+        []
+
+      _ ->
+        [ Styled.div
+          [ css
+            [ marginTop (px 30)
             ]
           ]
+          [ Styled.ul
+            []
+            <| ( todos |> List.map (\todo -> Styled.li
+              [ css
+                [ boxSizing borderBox
+                , backgroundColor (hex "fff")
+                , borderRadius (px 3)
+                , boxShadow4 (px 0) (px 4) (px 24) (rgba 0 0 0 0.15)
+                , color (hex "aaa")
+                , fontSize (px 20)
+                , padding (px 20)
+                , width (px 500)
+                , marginTop (px 20)
+                , transform (translateY (px 0))
+                , transition
+                  [ Css.Transitions.boxShadow 500
+                  , Css.Transitions.transform 500
+                  ]
+                , firstChild
+                  [ marginTop (px 0)
+                  ]
+                , hover
+                  [ boxShadow4 (px 0) (px 4) (px 48) (rgba 0 0 0 0.3)
+                  , transform (translateY (px -3))
+                  ]
+                ]
+              ]
+              [ Styled.text todo.title ]
+            ))
+          ]
         ]
-        [ Styled.text todo.title ]) todos
-      )
-    ]
+
