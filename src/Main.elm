@@ -46,31 +46,28 @@ type alias Model =
 
 init : D.Value -> (Model, Cmd Msg)
 init flags =
-  let
-    decodeTodos = resultForTodo(D.decodeValue todosDecoder flags)
-  in
-  ( Model Time.utc (Time.millisToPosix 0) decodeTodos "test"
+  ( Model Time.utc (Time.millisToPosix 0) (todosDecode flags) "test"
   , Task.perform AdjustTimeZone Time.here
   )
 
 
-resultForTodo : Result D.Error (List Todo) -> List Todo
-resultForTodo result =
+todosDecode : D.Value -> List Todo
+todosDecode flags =
+  let
+    decoder =
+      D.list
+        <| D.map2 Todo
+          (D.field "title" D.string)
+          (D.field "date"
+            <| D.map (\val -> Time.millisToPosix val) D.int
+          )
+    result = (D.decodeValue decoder flags)
+  in
   case result of
     Ok todos ->
       todos
     Err _ ->
       []
-
-
-todosDecoder : D.Decoder (List Todo)
-todosDecoder =
-  D.list
-    <| D.map2 Todo
-      (D.field "title" D.string)
-      (D.field "date"
-        <| D.map (\val -> Time.millisToPosix val) D.int
-      )
 
 
 
