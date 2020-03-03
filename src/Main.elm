@@ -1,6 +1,6 @@
 import Browser
 import Html.Styled as Styled
-import Html.Styled.Attributes exposing (css, placeholder, value)
+import Html.Styled.Attributes exposing (css, placeholder, value, src)
 import Html.Styled.Events exposing (onSubmit, onInput)
 import Css exposing (..)
 import Css.Transitions exposing (transition)
@@ -233,6 +233,8 @@ viewList todos =
               |> List.map (\todo -> Styled.li
                 [ css
                   [ boxSizing borderBox
+                  , displayFlex
+                  , justifyContent spaceBetween
                   , backgroundColor (hex "fff")
                   , borderRadius (px 3)
                   , boxShadow4 (px 0) (px 4) (px 24) (rgba 0 0 0 0.15)
@@ -255,7 +257,19 @@ viewList todos =
                     ]
                   ]
                 ]
-                [ Styled.text todo.title ]
+                [ Styled.text todo.title,
+                  Styled.button
+                  []
+                  [ Styled.img
+                    [ src "src/image/icon.png"
+                    , css
+                      [ width (px 20)
+                      ]
+                    ]
+                    [
+                    ]
+                  ]
+                ]
               ))
           ]
         ]
