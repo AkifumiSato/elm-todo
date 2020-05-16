@@ -156,6 +156,11 @@ view model =
     hour   = zeroPadding <| "0" ++ String.fromInt (Time.toHour   model.zone model.time)
     minute = zeroPadding <| "0" ++ String.fromInt (Time.toMinute model.zone model.time)
     second = zeroPadding <| "0" ++ String.fromInt (Time.toSecond model.zone model.time)
+    timeView =
+      if model.time == Time.millisToPosix 0 then
+        "--:--:--"
+      else
+        hour ++ ":" ++ minute ++ ":" ++ second
   in
   Styled.div
     [ css
@@ -174,7 +179,7 @@ view model =
         ]
       ]
       (
-        [ viewHeader (hour ++ ":" ++ minute ++ ":" ++ second)
+        [ viewHeader (timeView)
         , viewForm model.userInput
         ] ++ (
           viewList model.todos
