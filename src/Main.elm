@@ -193,7 +193,7 @@ viewHeader time =
         , fontSize (px 30)
         ]
       ]
-      [ Styled.text "NxTodo" ]
+      [ Styled.text "ElmTodo" ]
     , Styled.p
       [ css
         [ color (hex "fff")
@@ -260,17 +260,19 @@ viewList todos =
               [ css
                 [ boxSizing borderBox
                 , displayFlex
+                , alignItems center
                 , justifyContent spaceBetween
                 , backgroundColor (hex "fff")
                 , borderRadius (px 3)
                 , boxShadow4 (px 0) (px 4) (px 24) (rgba 0 0 0 0.15)
                 , color (hex "aaa")
-                , fontSize (px 20)
-                , padding (px 20)
+                , fontSize (px 25)
+                , padding3 (px 40) (px 20)  (px 20)
                 , height (px 200)
                 , width (px 200)
                 , marginTop (px 20)
                 , marginLeft (px 20)
+                , position relative
                 , transform (translateY (px 0))
                 , transition
                   [ Css.Transitions.boxShadow 500
@@ -285,6 +287,11 @@ viewList todos =
               [ Styled.text todo.title,
                 Styled.button
                 [ onClick (Delete todo.date)
+                , css
+                  [ position absolute
+                  , top (px 20)
+                  , right (px 20)
+                  ]
                 ]
                 [ Styled.img
                   [ src "src/image/icon.png"
