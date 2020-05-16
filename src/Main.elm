@@ -1,13 +1,14 @@
 import Browser
 import Html.Styled as Styled
 import Html.Styled.Attributes exposing (css, placeholder, value, src)
-import Html.Styled.Events exposing (onSubmit, onInput)
+import Html.Styled.Events exposing (onSubmit, onInput, onClick)
 import Css exposing (..)
 import Css.Transitions exposing (transition)
 import Css.Animations exposing (custom, keyframes, property)
 import Task
 import Time
 import String exposing (String)
+import List exposing (filter)
 import Ports
 import Json.Encode as E
 import Json.Decode as D
@@ -78,6 +79,7 @@ type Msg
   = Tick Time.Posix
   | AdjustTimeZone Time.Zone
   | Add String
+  | Delete Time.Posix
   | Input String
 
 
@@ -102,10 +104,23 @@ update msg model =
       , Ports.save (todosEncode newModel.todos)
       )
 
+    Delete date ->
+      let
+        newModel = { model | todos = filter (isOldTodo date) model.todos }
+      in
+      ( newModel
+      , Ports.save (todosEncode newModel.todos)
+      )
+
     Input input ->
       ( { model | userInput = input }
       , Cmd.none
       )
+
+
+isOldTodo : Time.Posix -> Todo -> Bool
+isOldTodo time todo =
+    (todo.date /= time)
 
 
 todosEncode : List Todo -> E.Value
@@ -157,9 +172,13 @@ view model =
         , width (vw 70)
         ]
       ]
-      ( [ viewHeader (hour ++ ":" ++ minute ++ ":" ++ second)
-      , viewForm model.userInput
-      ] ++ ( viewList model.todos ) )
+      (
+        [ viewHeader (hour ++ ":" ++ minute ++ ":" ++ second)
+        , viewForm model.userInput
+        ] ++ (
+          viewList model.todos
+        )
+      )
     ]
 
 
@@ -259,7 +278,8 @@ viewList todos =
                 ]
                 [ Styled.text todo.title,
                   Styled.button
-                  []
+                  [ onClick (Delete todo.date)
+                  ]
                   [ Styled.img
                     [ src "src/image/icon.png"
                     , css

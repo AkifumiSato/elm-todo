@@ -4,6 +4,7 @@
   "description": "### dev elm-live src/Main.elm -- --debug --output=build/elm.js",
   "main": "index.js",
   "scripts": {
+    "start": "elm-live src/Main.elm -- --debug --output=build/elm.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "elm make src/Main.elm --output=build/elm.js"
   },
@@ -19,6 +20,7 @@
   },
   "homepage": "https://github.com/AkifumiSato/elm-todo#readme",
   "devDependencies": {
-    "elm": "^0.19.0-no-deps"
+    "elm": "^0.19.0-no-deps",
+    "elm-live": "^4.0.2"
   }
 }
