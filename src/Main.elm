@@ -1,13 +1,14 @@
 import Browser
 import Html.Styled as Styled
-import Html.Styled.Attributes exposing (css, placeholder, value)
-import Html.Styled.Events exposing (onSubmit, onInput)
+import Html.Styled.Attributes exposing (css, placeholder, value, src)
+import Html.Styled.Events exposing (onSubmit, onInput, onClick)
 import Css exposing (..)
 import Css.Transitions exposing (transition)
 import Css.Animations exposing (custom, keyframes, property)
 import Task
 import Time
 import String exposing (String)
+import List exposing (filter)
 import Ports
 import Json.Encode as E
 import Json.Decode as D
@@ -78,6 +79,7 @@ type Msg
   = Tick Time.Posix
   | AdjustTimeZone Time.Zone
   | Add String
+  | Delete Time.Posix
   | Input String
 
 
@@ -96,7 +98,16 @@ update msg model =
 
     Add input ->
       let
-        newModel = { model | todos = ( Todo input model.time ) :: model.todos }
+        newModel =
+          { model | todos = ( Todo input model.time ) :: model.todos, userInput = "" }
+      in
+      ( newModel
+      , Ports.save (todosEncode newModel.todos)
+      )
+
+    Delete date ->
+      let
+        newModel = { model | todos = filter (isOldTodo date) model.todos }
       in
       ( newModel
       , Ports.save (todosEncode newModel.todos)
@@ -108,16 +119,21 @@ update msg model =
       )
 
 
+isOldTodo : Time.Posix -> Todo -> Bool
+isOldTodo time todo =
+  (todo.date /= time)
+
+
 todosEncode : List Todo -> E.Value
 todosEncode todos =
-    E.list
-      E.object
-      ( todos
-        |> List.map (\todo ->
-          [ ( "title", E.string todo.title )
-          , ( "date", E.int (Time.posixToMillis todo.date) )
-          ] )
-      )
+  E.list
+    E.object
+    ( todos
+      |> List.map (\todo ->
+        [ ( "title", E.string todo.title )
+        , ( "date", E.int (Time.posixToMillis todo.date) )
+        ] )
+    )
 
 
 
@@ -140,6 +156,11 @@ view model =
     hour   = zeroPadding <| "0" ++ String.fromInt (Time.toHour   model.zone model.time)
     minute = zeroPadding <| "0" ++ String.fromInt (Time.toMinute model.zone model.time)
     second = zeroPadding <| "0" ++ String.fromInt (Time.toSecond model.zone model.time)
+    timeView =
+      if model.time == Time.millisToPosix 0 then
+        "--:--:--"
+      else
+        hour ++ ":" ++ minute ++ ":" ++ second
   in
   Styled.div
     [ css
@@ -154,12 +175,16 @@ view model =
         , minHeight (vh 100)
         , margin2 (px 0) auto
         , paddingTop (px 50)
-        , width (vw 70)
+        , width (px 1080)
         ]
       ]
-      ( [ viewHeader (hour ++ ":" ++ minute ++ ":" ++ second)
-      , viewForm model.userInput
-      ] ++ ( viewList model.todos ) )
+      (
+        [ viewHeader (timeView)
+        , viewForm model.userInput
+        ] ++ (
+          viewList model.todos
+        )
+      )
     ]
 
 
@@ -173,7 +198,7 @@ viewHeader time =
         , fontSize (px 30)
         ]
       ]
-      [ Styled.text "NxTodo" ]
+      [ Styled.text "ElmTodo" ]
     , Styled.p
       [ css
         [ color (hex "fff")
@@ -217,46 +242,73 @@ viewForm input =
 
 viewList : List Todo -> List (Styled.Html Msg)
 viewList todos =
-    case todos of
-      [] ->
-        []
+  case todos of
+    [] ->
+      []
 
-      _ ->
-        [ Styled.div
-          [ css
-            [ marginTop (px 30)
-            ]
-          ]
-          [ Styled.ul
-            []
-            <| ( todos
-              |> List.map (\todo -> Styled.li
-                [ css
-                  [ boxSizing borderBox
-                  , backgroundColor (hex "fff")
-                  , borderRadius (px 3)
-                  , boxShadow4 (px 0) (px 4) (px 24) (rgba 0 0 0 0.15)
-                  , color (hex "aaa")
-                  , fontSize (px 20)
-                  , padding (px 20)
-                  , width (px 500)
-                  , marginTop (px 20)
-                  , transform (translateY (px 0))
-                  , transition
-                    [ Css.Transitions.boxShadow 500
-                    , Css.Transitions.transform 500
-                    ]
-                  , firstChild
-                    [ marginTop (px 0)
-                    ]
-                  , hover
-                    [ boxShadow4 (px 0) (px 4) (px 48) (rgba 0 0 0 0.3)
-                    , transform (translateY (px -3))
-                    ]
-                  ]
-                ]
-                [ Styled.text todo.title ]
-              ))
+    _ ->
+      [ Styled.div
+        [ css
+          [ marginTop (px 30)
           ]
         ]
+        [ Styled.ul
+          [ css
+            [ displayFlex
+            , flexWrap wrap
+            , marginTop (px -20)
+            , marginLeft (px -20)
+            ]
+          ]
+          <| ( todos
+            |> List.map (\todo -> Styled.li
+              [ css
+                [ boxSizing borderBox
+                , displayFlex
+                , alignItems center
+                , justifyContent spaceBetween
+                , backgroundColor (hex "fff")
+                , borderRadius (px 3)
+                , boxShadow4 (px 0) (px 4) (px 24) (rgba 0 0 0 0.15)
+                , color (hex "aaa")
+                , fontSize (px 25)
+                , padding3 (px 40) (px 20)  (px 20)
+                , height (px 200)
+                , width (px 200)
+                , marginTop (px 20)
+                , marginLeft (px 20)
+                , position relative
+                , transform (translateY (px 0))
+                , transition
+                  [ Css.Transitions.boxShadow 500
+                  , Css.Transitions.transform 500
+                  ]
+                , hover
+                  [ boxShadow4 (px 0) (px 4) (px 48) (rgba 0 0 0 0.3)
+                  , transform (translateY (px -3))
+                  ]
+                ]
+              ]
+              [ Styled.text todo.title,
+                Styled.button
+                [ onClick (Delete todo.date)
+                , css
+                  [ position absolute
+                  , top (px 20)
+                  , right (px 20)
+                  ]
+                ]
+                [ Styled.img
+                  [ src "src/image/icon.png"
+                  , css
+                    [ width (px 20)
+                    ]
+                  ]
+                  [
+                  ]
+                ]
+              ]
+            ))
+        ]
+      ]
 
