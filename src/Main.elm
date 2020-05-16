@@ -98,7 +98,8 @@ update msg model =
 
     Add input ->
       let
-        newModel = { model | todos = ( Todo input model.time ) :: model.todos }
+        newModel =
+          { model | todos = ( Todo input model.time ) :: model.todos, userInput = "" }
       in
       ( newModel
       , Ports.save (todosEncode newModel.todos)
@@ -120,19 +121,19 @@ update msg model =
 
 isOldTodo : Time.Posix -> Todo -> Bool
 isOldTodo time todo =
-    (todo.date /= time)
+  (todo.date /= time)
 
 
 todosEncode : List Todo -> E.Value
 todosEncode todos =
-    E.list
-      E.object
-      ( todos
-        |> List.map (\todo ->
-          [ ( "title", E.string todo.title )
-          , ( "date", E.int (Time.posixToMillis todo.date) )
-          ] )
-      )
+  E.list
+    E.object
+    ( todos
+      |> List.map (\todo ->
+        [ ( "title", E.string todo.title )
+        , ( "date", E.int (Time.posixToMillis todo.date) )
+        ] )
+    )
 
 
 
@@ -169,7 +170,7 @@ view model =
         , minHeight (vh 100)
         , margin2 (px 0) auto
         , paddingTop (px 50)
-        , width (vw 70)
+        , width (px 1080)
         ]
       ]
       (
@@ -236,61 +237,66 @@ viewForm input =
 
 viewList : List Todo -> List (Styled.Html Msg)
 viewList todos =
-    case todos of
-      [] ->
-        []
+  case todos of
+    [] ->
+      []
 
-      _ ->
-        [ Styled.div
-          [ css
-            [ marginTop (px 30)
-            ]
-          ]
-          [ Styled.ul
-            []
-            <| ( todos
-              |> List.map (\todo -> Styled.li
-                [ css
-                  [ boxSizing borderBox
-                  , displayFlex
-                  , justifyContent spaceBetween
-                  , backgroundColor (hex "fff")
-                  , borderRadius (px 3)
-                  , boxShadow4 (px 0) (px 4) (px 24) (rgba 0 0 0 0.15)
-                  , color (hex "aaa")
-                  , fontSize (px 20)
-                  , padding (px 20)
-                  , width (px 500)
-                  , marginTop (px 20)
-                  , transform (translateY (px 0))
-                  , transition
-                    [ Css.Transitions.boxShadow 500
-                    , Css.Transitions.transform 500
-                    ]
-                  , firstChild
-                    [ marginTop (px 0)
-                    ]
-                  , hover
-                    [ boxShadow4 (px 0) (px 4) (px 48) (rgba 0 0 0 0.3)
-                    , transform (translateY (px -3))
-                    ]
-                  ]
-                ]
-                [ Styled.text todo.title,
-                  Styled.button
-                  [ onClick (Delete todo.date)
-                  ]
-                  [ Styled.img
-                    [ src "src/image/icon.png"
-                    , css
-                      [ width (px 20)
-                      ]
-                    ]
-                    [
-                    ]
-                  ]
-                ]
-              ))
+    _ ->
+      [ Styled.div
+        [ css
+          [ marginTop (px 30)
           ]
         ]
+        [ Styled.ul
+          [ css
+            [ displayFlex
+            , flexWrap wrap
+            , marginTop (px -20)
+            , marginLeft (px -20)
+            ]
+          ]
+          <| ( todos
+            |> List.map (\todo -> Styled.li
+              [ css
+                [ boxSizing borderBox
+                , displayFlex
+                , justifyContent spaceBetween
+                , backgroundColor (hex "fff")
+                , borderRadius (px 3)
+                , boxShadow4 (px 0) (px 4) (px 24) (rgba 0 0 0 0.15)
+                , color (hex "aaa")
+                , fontSize (px 20)
+                , padding (px 20)
+                , height (px 200)
+                , width (px 200)
+                , marginTop (px 20)
+                , marginLeft (px 20)
+                , transform (translateY (px 0))
+                , transition
+                  [ Css.Transitions.boxShadow 500
+                  , Css.Transitions.transform 500
+                  ]
+                , hover
+                  [ boxShadow4 (px 0) (px 4) (px 48) (rgba 0 0 0 0.3)
+                  , transform (translateY (px -3))
+                  ]
+                ]
+              ]
+              [ Styled.text todo.title,
+                Styled.button
+                [ onClick (Delete todo.date)
+                ]
+                [ Styled.img
+                  [ src "src/image/icon.png"
+                  , css
+                    [ width (px 20)
+                    ]
+                  ]
+                  [
+                  ]
+                ]
+              ]
+            ))
+        ]
+      ]
 
